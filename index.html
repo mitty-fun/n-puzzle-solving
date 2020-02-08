@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+        .grid {
+            display: inline-block;
+        }
+        .row {
+            display: flex;
+        }
+        .col {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            box-sizing: border-box;
+            background-color: #eeeeee;
+            border: 2px solid #ccc;
+        }
+        .bg-white {
+            background-color: white;
+        }
+        .bg-gray {
+            background-color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>{{game.status}}</h1>
+        <div class="grid">
+            <div v-for="row in game.grid" class="row">
+                <div v-for="col in row" :class="getClassOf(col)">
+                    {{col === game.width*game.height ? '' : col}}
+                </div>
+            </div>
+        </div>
+        <div>
+            <button @click="randomGrid">randomGrid</button>
+            <button @click="undo">undo</button>
+            <button @click="resolve">resolve</button>
+        </div>
+        
+    </div>
+    <script src="puzzle.js"></script>
+    <script src="ai.js"></script>
+    <script>
+        const game = new Puzzle(3, 3)
+
+        new Vue({
+            el: '#game',
+            data: { game },
+            methods: {
+                randomGrid() {
+                    this.game.randomGrid()
+                },
+                undo() {
+                    this.game.undo()
+                },
+                resolve() {
+                    const startTime = Date.now()
+                    AI(this.game)
+                    console.log((Date.now() - startTime) + 'ms')
+                },
+                getClassOf(col) {
+                    if (col === this.game.width*this.game.height) {
+                        return ['col', 'bg-gray']
+                    } else {
+                        return ['col', 'bg-white']
+                    }
+                }
+            }
+        })
+
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === 38) game.moveUp()
+            if (e.keyCode === 40) game.moveDown()
+            if (e.keyCode === 37) game.moveLeft()
+            if (e.keyCode === 39) game.moveRight()
+            if (e.keyCode === 32) game.undo()
+        })
+    </script>
+</body>
+</html>
